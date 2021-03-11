@@ -4,30 +4,31 @@ import React, {useState} from 'react';
 
 import { StyleSheet, Text, View,FlatList, SafeAreaView, TouchableOpacity,Image } from 'react-native';
 import { Card, Button } from 'react-native-elements';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {NavigationContainer, useNavigation, useRoute} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 
-export default function Product({}) {
+export default function Product({item}) {
     const navigation = useNavigation();
+    const route = useRoute();
       return (
+        
         <Card>
            
            <Image source = {require("./assets/testImage.jpeg")} style={styles.image}/>
             <Text style={{marginBottom: 10, marginTop: 20 }} h2>
-                Kid shoes
+                {item.name}
             </Text>
             <Text style={styles.price} h4>
-                $ 200
+                $ 
             </Text>
             <Text h6 style={styles.description}>
                 added 2h ago
             </Text>
-            <Button
-            type="clear"
-            title='Buy now'
-            onPress={() => navigation.navigate('Details')} />
+           
+            
         </Card>
+        
       );
     
 }
