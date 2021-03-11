@@ -7,18 +7,6 @@ import {NavigationContainer} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 
-// class DetailsScreen extends React.Component {
-//     render() {
-//       return (
-//         <View>
-//             <Text>Details</Text>
-//         </View>
-//       );
-//     }
-// }
-
-
-// export default DetailsScreen;
 
  export default function DetailsScreen({navigation}){
 
