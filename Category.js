@@ -7,58 +7,35 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import AsyncStorage from '@react-native-community/async-storage';
 
+export default function Category(){
 
-
-
-
-const App = () => {
-  var [toBeStored,setToBeStored] = useState([]);
-  var [cart,setCart] = useState([]);
-  const STORAGE_KEY ="add_to_cart";
-  const [search, setSearch] = useState('');
+	const[flag,setFlag] = useState(0);
+	const STORAGE_KEY ="add_to_cart";
+	var [toBeStored,setToBeStored] = useState([]);
+	const navigation = useNavigation();
+	const route = useRoute();
+	const [search, setSearch] = useState(route.name);
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [masterDataSource, setMasterDataSource] = useState([]);
-  const route = useRoute();
-    const navigation = useNavigation();
-    const Tab = createMaterialTopTabNavigator();
-
 
   useEffect(() => {
+
+  	
+  		
     fetch('https://my-json-server.typicode.com/gurvindersingh9803/data/CO')
       .then((response) => response.json())
       .then((responseJson) => {
-        setFilteredDataSource(responseJson);
-        setMasterDataSource(responseJson);
+      	setFilteredDataSource(responseJson);
+		setMasterDataSource(responseJson);
       })
       .catch((error) => {
         console.error(error);
-        alert(error);
-      });
-
-
+      })
+      .finally(() => searchFilterFunction());
       
       
-  }, []);
 
-  
-const addToCart = async () => {
-  try{
-  const value = await AsyncStorage.getItem(STORAGE_KEY);
-}
-catch(e){
-
-}
-  setToBeStored([...toBeStored,value]);
-  clearStorage();
-  saveData();
-
-  //setCart([...cart,toBeStored]);
-  // setCart(toBeStored);
-  // alert(cart);
-  // alert(toBeStored);
-  // saveData();
-  //alert(toBeStored);
-}
+  },[]);
   const saveData = async () => {
     try{
       await AsyncStorage.setItem(STORAGE_KEY,JSON.stringify(toBeStored));
@@ -69,49 +46,19 @@ catch(e){
     }
   }
 
-const retrieveData = async () => {
-  try{
-    const value = await AsyncStorage.getItem(STORAGE_KEY);
-    if(value !== null){
-      alert(value);
-    }
-  }catch(error){
-    alert(error);
-  }
-}
-
-const clearStorage = async () => {
-  try {
-    await AsyncStorage.clear()
-    alert('Cart successfully cleared!');
-  } catch (e) {
-    alert('Failed to clear the Cart');
-  }
-}
-
-  const searchFilterFunction = (text) => {
-    // Check if searched text is not blank
-    if (text) {
-      // Inserted text is not blank
-      // Filter the masterDataSource
-      // Update FilteredDataSource
-      const newData = masterDataSource.filter(
-        function (item) {
-          const itemData = item.title
-            ? item.title.toUpperCase()
-            : ''.toUpperCase();
-          const textData = text.toUpperCase();
-          return itemData.indexOf(textData) > -1;
-      });
-      setFilteredDataSource(newData);
-      setSearch(text);
-    } else {
-      // Inserted text is blank
-      // Update FilteredDataSource with masterDataSource
-      setFilteredDataSource(masterDataSource);
-      setSearch(text);
-    }
+	const ItemSeparatorView = () => {
+    return (
+      // Flat List Item Separator
+      <View
+        style={{
+          height: 0.5,
+          width: '100%',
+          backgroundColor: '#C8C8C8',
+        }}
+      />
+    );
   };
+
 
   const ItemView = ({item}) => {
     return (
@@ -141,6 +88,7 @@ const clearStorage = async () => {
                   </Text>
                  <Button title="Add To Cart" onPress={() => {setToBeStored(item),saveData()}}>
                  </Button>
+                  
               </Card>
                 
                 </View>
@@ -152,41 +100,48 @@ const clearStorage = async () => {
     );
   };
 
-  const ItemSeparatorView = () => {
-    return (
-      // Flat List Item Separator
-      <View
-        style={{
-          height: 0.5,
-          width: '100%',
-          backgroundColor: '#C8C8C8',
-        }}
-      />
-    );
+
+
+  
+
+
+
+
+  const searchFilterFunction = () => {
+  		
+    // Check if searched text is not blank
+    
+      // Inserted text is not blank
+      // Filter the masterDataSource
+      // Update FilteredDataSource
+      const newData = masterDataSource.filter(
+        function (item) {
+          const itemData = item.category
+            ? item.category.toUpperCase()
+            : ''.toUpperCase();
+          const textData = route.name.toUpperCase();
+          return itemData.indexOf(textData) > -1;
+      });
+      setFilteredDataSource(newData);
+      
+    
   };
 
-  return (
-
-
     
+	 return (
 
     <SafeAreaView style={{flex: 1}}>
       
-
+    
+    
+    
       <View style={styles.container}>
-
+      	
       
-        <TextInput
-          style={styles.textInputStyle}
-          onChangeText={(text) => searchFilterFunction(text)}
-          value={search}
-          underlineColorAndroid="transparent"
-          placeholder="Search your favourite products here..."
-        />
+       
         <FlatList
                   data={filteredDataSource}
                   keyExtractor={(item, index) => index.toString()}
-                  //keyExtractor={(item) => item.id}
                   ItemSeparatorComponent={ItemSeparatorView}
                   renderItem={ItemView}
                 />
@@ -199,9 +154,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
 
-  },
-  col:{
-    alignItems:"center"
   },
   itemStyle: {
     padding: 10,
@@ -238,11 +190,7 @@ const styles = StyleSheet.create({
       padding: 5,
 
     },
-    addtocart:{
-      tintColor:"white",
-      backgroundColor:"gray",
-      fontSize:25,
+    col:{
+    	alignItems:"center"
     }
 });
-
-export default App;
