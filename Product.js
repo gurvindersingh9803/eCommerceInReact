@@ -17,7 +17,7 @@ export default function Product({item}) {
            
            <Image source = {require("./assets/testImage.jpeg")} style={styles.image}/>
             <Text style={{marginBottom: 10, marginTop: 20 }} h2>
-                {item.name}
+                Name
             </Text>
             <Text style={styles.price} h4>
                 $ 
