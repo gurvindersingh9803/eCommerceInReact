@@ -5,7 +5,7 @@ import { StatusBar, StyleSheet,FlatList,View, Text,TouchableOpacity,Image,SafeAr
 import {NavigationContainer, useNavigation, useRoute} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import AsyncStorage from '@react-native-community/async-storage';
+import axios from 'axios'
 
 export default function Category(){
 
@@ -18,22 +18,25 @@ export default function Category(){
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [masterDataSource, setMasterDataSource] = useState([]);
 
+  const getPosts = async () => {
+  try {
+const userPosts = await axios.get("http://10.0.2.2:5000/exercises/")
+
+    
+    console.log(userPosts.data);
+    setMasterDataSource(userPosts.data)
+        setFilteredDataSource(userPosts.data)
+
+  
+  } catch (err) {
+    console.error(err.message);
+  }
+};
+
   useEffect(() => {
 
-  	
-  		
-    fetch('https://my-json-server.typicode.com/gurvindersingh9803/data/CO')
-      .then((response) => response.json())
-      .then((responseJson) => {
-      	setFilteredDataSource(responseJson);
-		setMasterDataSource(responseJson);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => searchFilterFunction());
-      
-      
+  	getPosts()
+
 
   },[]);
   const saveData = async () => {
@@ -61,6 +64,9 @@ export default function Category(){
 
 
   const ItemView = ({item}) => {
+
+    alert(item)
+
     return (
       // Flat List Item
       <SafeAreaView>
@@ -74,11 +80,11 @@ export default function Category(){
                  
                  <Image
                             style={styles.image}
-                             source={{uri: item.productImage}}
+                             source={{ uri: `http://10.0.2.2:5000/${item.productImage}`}}
                            />
 
                   <Text style={{marginBottom: 10, marginTop: 20 }} h2>
-                      {item.title}
+                      {item.name}
                   </Text>
                   <Text style={styles.price} h4>
                       $ {item.price}
@@ -116,6 +122,8 @@ export default function Category(){
       // Update FilteredDataSource
       const newData = masterDataSource.filter(
         function (item) {
+
+
           const itemData = item.category
             ? item.category.toUpperCase()
             : ''.toUpperCase();
@@ -140,7 +148,9 @@ export default function Category(){
       
        
         <FlatList
-                  data={filteredDataSource}
+
+
+                  data={filteredDataSource.name}
                   keyExtractor={(item, index) => index.toString()}
                   ItemSeparatorComponent={ItemSeparatorView}
                   renderItem={ItemView}

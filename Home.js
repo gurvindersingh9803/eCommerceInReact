@@ -5,7 +5,8 @@ import { StatusBar, StyleSheet,FlatList,View, Text,TouchableOpacity,Image,SafeAr
 import {NavigationContainer, useNavigation, useRoute} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import AsyncStorage from '@react-native-community/async-storage';
+import axios from 'axios'
+
 
 
 
@@ -23,71 +24,43 @@ const App = () => {
     const Tab = createMaterialTopTabNavigator();
 
 
-  useEffect(() => {
-    fetch('https://my-json-server.typicode.com/gurvindersingh9803/data/CO')
-      .then((response) => response.json())
-      .then((responseJson) => {
-        setFilteredDataSource(responseJson);
-        setMasterDataSource(responseJson);
-      })
-      .catch((error) => {
-        console.error(error);
-        alert(error);
-      });
+   const getPosts = async () => {
+   try {
+      const userPosts = await axios.get("http://10.0.2.2:5000/exercises/")
+      console.log(userPosts.data);
+      setMasterDataSource(userPosts.data)
+      setFilteredDataSource(userPosts.data)
+   
+   } catch (err) {
+     console.error(err.message);
+   }
+ };
+
+   useEffect(() => {
+
+    getPosts()
 
 
-      
-      
-  }, []);
+   },[]);
+
+     function addToCart(item){
+
+        fetch("http://10.0.2.2:5000/cart/add", {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            product_id: item._id,
+          }),
+        });
+
+     }
 
   
-const addToCart = async () => {
-  try{
-  const value = await AsyncStorage.getItem(STORAGE_KEY);
-}
-catch(e){
 
-}
-  setToBeStored([...toBeStored,value]);
-  clearStorage();
-  saveData();
-
-  //setCart([...cart,toBeStored]);
-  // setCart(toBeStored);
-  // alert(cart);
-  // alert(toBeStored);
-  // saveData();
-  //alert(toBeStored);
-}
-  const saveData = async () => {
-    try{
-      await AsyncStorage.setItem(STORAGE_KEY,JSON.stringify(toBeStored));
-      alert("Added to cart");
-    }
-    catch(e){
-      alert("failed");
-    }
-  }
-
-const retrieveData = async () => {
-  try{
-    const value = await AsyncStorage.getItem(STORAGE_KEY);
-    if(value !== null){
-      alert(value);
-    }
-  }catch(error){
-    alert(error);
-  }
-}
-
-const clearStorage = async () => {
-  try {
-    await AsyncStorage.clear()
-    alert('Cart successfully cleared!');
-  } catch (e) {
-    alert('Failed to clear the Cart');
-  }
-}
+   
 
   const searchFilterFunction = (text) => {
     // Check if searched text is not blank
@@ -97,8 +70,8 @@ const clearStorage = async () => {
       // Update FilteredDataSource
       const newData = masterDataSource.filter(
         function (item) {
-          const itemData = item.title
-            ? item.title.toUpperCase()
+          const itemData = item.name
+            ? item.name.toUpperCase()
             : ''.toUpperCase();
           const textData = text.toUpperCase();
           return itemData.indexOf(textData) > -1;
@@ -127,11 +100,12 @@ const clearStorage = async () => {
                  
                  <Image
                             style={styles.image}
-                             source={{uri: item.productImage}}
-                           />
+                            source={{
+                                    uri: `http://10.0.2.2:5000/${item.productImage}`
+                                }}                           />
 
                   <Text style={{marginBottom: 10, marginTop: 20 }} h2>
-                      {item.title}
+                      {item.name}
                   </Text>
                   <Text style={styles.price} h4>
                       $ {item.price}
@@ -139,7 +113,7 @@ const clearStorage = async () => {
                   <Text h6 style={styles.description}>
                       added 2h ago
                   </Text>
-                 <Button title="Add To Cart" onPress={() => {setToBeStored(item),saveData()}}>
+                 <Button title="Add To Cart" onPress={() => {addToCart(item)}}>
                  </Button>
               </Card>
                 
@@ -184,9 +158,8 @@ const clearStorage = async () => {
           placeholder="Search your favourite products here..."
         />
         <FlatList
-                  data={filteredDataSource}
+                  data={filteredDataSource.products}
                   keyExtractor={(item, index) => index.toString()}
-                  //keyExtractor={(item) => item.id}
                   ItemSeparatorComponent={ItemSeparatorView}
                   renderItem={ItemView}
                 />
